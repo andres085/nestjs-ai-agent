@@ -8,8 +8,8 @@ export enum Platform {
 
 @Entity('social_accounts')
 export class SocialAccount {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;

@@ -19,16 +19,16 @@ export class SocialAccountsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.socialAccountsService.findOne(+id);
+    return this.socialAccountsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSocialAccountDto: UpdateSocialAccountDto) {
-    return this.socialAccountsService.update(+id, updateSocialAccountDto);
+    return this.socialAccountsService.update(id, updateSocialAccountDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.socialAccountsService.remove(+id);
+    return this.socialAccountsService.remove(id);
   }
 }
