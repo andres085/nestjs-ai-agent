@@ -6,6 +6,7 @@ import { SocialAccountsModule } from './social-accounts/social-accounts.module';
 import { PostsModule } from './posts/posts.module';
 import { SocialAccount } from './social-accounts/entities/social-account.entity';
 import { Post } from './posts/entities/post.entity';
+import { SeedsModule } from './seeds/seeds.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { Post } from './posts/entities/post.entity';
     }),
     SocialAccountsModule,
     PostsModule,
+    SeedsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

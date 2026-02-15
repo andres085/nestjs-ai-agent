@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SocialAccount } from './entities/social-account.entity';
 import { CreateSocialAccountDto } from './dto/create-social-account.dto';
 import { UpdateSocialAccountDto } from './dto/update-social-account.dto';
 
 @Injectable()
 export class SocialAccountsService {
-  create(createSocialAccountDto: CreateSocialAccountDto) {
-    return 'This action adds a new socialAccount';
+  constructor(
+    @InjectRepository(SocialAccount)
+    private readonly socialAccountsRepository: Repository<SocialAccount>,
+  ) {}
+
+  create(createSocialAccountDto: CreateSocialAccountDto): Promise<SocialAccount> {
+    const account = this.socialAccountsRepository.create(createSocialAccountDto);
+    return this.socialAccountsRepository.save(account);
   }
 
-  findAll() {
-    return `This action returns all socialAccounts`;
+  findAll(): Promise<SocialAccount[]> {
+    return this.socialAccountsRepository.find();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} socialAccount`;
+  async findOne(id: string): Promise<SocialAccount> {
+    const account = await this.socialAccountsRepository.findOne({ where: { id } });
+    if (!account) {
+      throw new NotFoundException(`Social account #${id} not found`);
+    }
+    return account;
   }
 
-  update(id: string, updateSocialAccountDto: UpdateSocialAccountDto) {
-    return `This action updates a #${id} socialAccount`;
+  async update(id: string, updateSocialAccountDto: UpdateSocialAccountDto): Promise<SocialAccount> {
+    await this.socialAccountsRepository.update(id, updateSocialAccountDto);
+    return this.findOne(id);
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} socialAccount`;
+  async remove(id: string): Promise<void> {
+    const account = await this.findOne(id);
+    await this.socialAccountsRepository.remove(account);
   }
 }
