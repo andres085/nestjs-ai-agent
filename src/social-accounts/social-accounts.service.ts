@@ -12,15 +12,15 @@ export class SocialAccountsService {
     return `This action returns all socialAccounts`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} socialAccount`;
   }
 
-  update(id: number, updateSocialAccountDto: UpdateSocialAccountDto) {
+  update(id: string, updateSocialAccountDto: UpdateSocialAccountDto) {
     return `This action updates a #${id} socialAccount`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} socialAccount`;
   }
 }
