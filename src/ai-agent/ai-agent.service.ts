@@ -1,15 +1,22 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { generateText, stepCountIs } from 'ai';
 import { PostsService } from 'src/posts/posts.service';
 import { AnalysisRequestDto } from './dto/analysis-request.dto';
+import { Analysis } from './entities/analysis.entity';
 import { analyzePerformanceTool } from './tools/analyze-performance.tool';
 import { createScheduleTool } from './tools/create-schedule.tool';
 import { generateContentIdeasTool } from './tools/generate-content-ideas.tool';
 
 @Injectable()
 export class AiAgentService {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    @InjectRepository(Analysis)
+    private readonly analysisRepository: Repository<Analysis>,
+  ) {}
 
   async analyze(analysisRequestDto: AnalysisRequestDto) {
     const { socialAccountId, timePeriod } = analysisRequestDto;
@@ -56,14 +63,35 @@ export class AiAgentService {
       (t) => t.toolName === 'createSchedule',
     )?.output;
 
-    return {
-      summary: result.text,
+    const analysis = this.analysisRepository.create({
+      socialAccountId,
+      timePeriod,
+      text: result.text,
+      insights: performanceData,
+      suggestions: {
+        contentSuggestions: contentIdeas?.ideas,
+        schedule: scheduleData?.schedule,
+      },
+    });
 
+    const saved = await this.analysisRepository.save(analysis);
+
+    return {
+      id: saved.id,
+      summary: result.text,
+      timePeriod: saved.timePeriod,
       insights: performanceData,
       contentSuggestions: contentIdeas?.ideas,
       schedule: scheduleData?.schedule,
-
+      createdAt: saved.createdAt,
       usage: result.usage,
     };
+  }
+
+  async findAllByAccount(socialAccountId: string) {
+    return this.analysisRepository.find({
+      where: { socialAccountId },
+      order: { createdAt: 'DESC' },
+    });
   }
 }
