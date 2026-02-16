@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Media Analyzer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+
+    header h1 { font-size: 1.6rem; font-weight: 600; }
+    header p { font-size: 0.9rem; opacity: 0.85; margin-top: 0.25rem; }
+
+    .container { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f0f2f5;
+    }
+
+    label { display: block; font-weight: 500; margin-bottom: 0.35rem; font-size: 0.9rem; }
+
+    select, button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 0.55rem 0.75rem;
+      width: 100%;
+    }
+
+    select { background: #fff; cursor: pointer; }
+
+    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .form-group { flex: 1; min-width: 180px; }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 1.25rem;
+      padding: 0.7rem;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Spinner overlay */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      color: #fff;
+      font-size: 1.1rem;
+    }
+
+    .overlay.active { display: flex; }
+
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results */
+    #results { display: none; }
+
+    .result-block { margin-bottom: 1.25rem; }
+    .result-block h3 { font-size: 1rem; color: #667eea; margin-bottom: 0.4rem; }
+    .result-block pre {
+      background: #f8f9fb;
+      padding: 1rem;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 0.85rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .result-text {
+      background: #f8f9fb;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+    }
+
+    /* History */
+    .history-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      background: #fafbfc;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .history-header:hover { background: #f0f2f5; }
+
+    .history-header .date { font-weight: 500; font-size: 0.9rem; }
+    .history-header .period { color: #6b7280; font-size: 0.85rem; }
+    .history-header .chevron {
+      transition: transform 0.2s;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+    .history-item.open .history-header .chevron { transform: rotate(90deg); }
+
+    .history-body {
+      display: none;
+      padding: 1rem;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .history-item.open .history-body { display: block; }
+
+    .empty-state {
+      text-align: center;
+      color: #9ca3af;
+      padding: 2rem 1rem;
+      font-size: 0.95rem;
+    }
+
+    .error-msg {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+    .result-text h1, .result-text h2, .result-text h3, .result-text h4 { margin: 0.75rem 0 0.35rem; }
+    .result-text h1 { font-size: 1.2rem; }
+    .result-text h2 { font-size: 1.1rem; }
+    .result-text h3 { font-size: 1rem; }
+    .result-text p { margin-bottom: 0.5rem; }
+    .result-text ul, .result-text ol { margin: 0.4rem 0 0.6rem 1.5rem; }
+    .result-text li { margin-bottom: 0.25rem; }
+    .result-text strong { font-weight: 600; }
+    .result-text code { background: #e8eaed; padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
+    .result-text pre code { display: block; background: #e8eaed; padding: 0.75rem; border-radius: 6px; overflow-x: auto; }
+    .result-text table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
+    .result-text th, .result-text td { border: 1px solid #d1d5db; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.85rem; }
+    .result-text th { background: #f0f2f5; font-weight: 600; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Social Media Analyzer</h1>
+    <p>AI-powered analysis for your social media accounts</p>
+  </header>
+
+  <div class="container">
+    <!-- Analyze Section -->
+    <div class="card">
+      <h2>Run Analysis</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="account">Social Account</label>
+          <select id="account">
+            <option value="">Loading accounts...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="period">Time Period</label>
+          <select id="period">
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="60">Last 60 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+      </div>
+      <button id="analyzeBtn" disabled>Analyze</button>
+      <div id="analyzeError"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="card">
+      <h2>Analysis Results</h2>
+      <div id="resultsContent"></div>
+    </div>
+
+    <!-- History Section -->
+    <div class="card">
+      <h2>Analysis History</h2>
+      <div id="history">
+        <p class="empty-state">Select an account to view past analyses</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="spinner"></div>
+    <span>Analyzing... this may take a moment</span>
+  </div>
+
+  <script>
+    const API = window.location.origin;
+    const accountSelect = document.getElementById('account');
+    const periodSelect = document.getElementById('period');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const overlay = document.getElementById('overlay');
+    const resultsCard = document.getElementById('results');
+    const resultsContent = document.getElementById('resultsContent');
+    const historyContainer = document.getElementById('history');
+    const analyzeError = document.getElementById('analyzeError');
+
+    // --- Load social accounts ---
+    async function loadAccounts() {
+      try {
+        const res = await fetch(`${API}/social-accounts`);
+        const accounts = await res.json();
+        accountSelect.innerHTML = '';
+        if (accounts.length === 0) {
+          accountSelect.innerHTML = '<option value="">No accounts found</option>';
+          return;
+        }
+        accounts.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          opt.textContent = `${a.name} (${a.platform})`;
+          accountSelect.appendChild(opt);
+        });
+        analyzeBtn.disabled = false;
+        loadHistory(accounts[0].id);
+      } catch {
+        accountSelect.innerHTML = '<option value="">Failed to load accounts</option>';
+      }
+    }
+
+    // --- Load history for selected account ---
+    async function loadHistory(accountId) {
+      if (!accountId) {
+        historyContainer.innerHTML = '<p class="empty-state">Select an account to view past analyses</p>';
+        return;
+      }
+      try {
+        const res = await fetch(`${API}/ai-agent/analyses/${accountId}`);
+        const analyses = await res.json();
+        if (analyses.length === 0) {
+          historyContainer.innerHTML = '<p class="empty-state">No analyses yet for this account</p>';
+          return;
+        }
+        // Sort by date descending
+        analyses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        historyContainer.innerHTML = analyses.map(a => `
+          <div class="history-item">
+            <div class="history-header" onclick="this.parentElement.classList.toggle('open')">
+              <div>
+                <span class="date">${new Date(a.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                <span class="period">&mdash; ${a.timePeriod} days</span>
+              </div>
+              <span class="chevron">&#9654;</span>
+            </div>
+            <div class="history-body">
+              ${renderAnalysis(a)}
+            </div>
+          </div>
+        `).join('');
+      } catch {
+        historyContainer.innerHTML = '<p class="empty-state">Failed to load history</p>';
+      }
+    }
+
+    // --- Render an analysis object into HTML ---
+    function renderAnalysis(analysis) {
+      let html = '';
+      if (analysis.text) {
+        html += `<div class="result-block"><h3>Summary</h3><div class="result-text">${marked.parse(analysis.text)}</div></div>`;
+      }
+      if (analysis.insights) {
+        html += `<div class="result-block"><h3>Insights</h3><pre>${escapeHtml(JSON.stringify(analysis.insights, null, 2))}</pre></div>`;
+      }
+      if (analysis.suggestions) {
+        html += `<div class="result-block"><h3>Content Suggestions</h3><pre>${escapeHtml(JSON.stringify(analysis.suggestions, null, 2))}</pre></div>`;
+      }
+      return html || '<p class="empty-state">No data available</p>';
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    // --- Run analysis ---
+    async function runAnalysis() {
+      const socialAccountId = accountSelect.value;
+      const timePeriod = parseInt(periodSelect.value, 10);
+      if (!socialAccountId) return;
+
+      analyzeError.innerHTML = '';
+      overlay.classList.add('active');
+      analyzeBtn.disabled = true;
+      resultsCard.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API}/ai-agent/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ socialAccountId, timePeriod }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || `Request failed (${res.status})`);
+        }
+        const data = await res.json();
+        resultsContent.innerHTML = renderAnalysis(data);
+        resultsCard.style.display = 'block';
+        // Refresh history
+        loadHistory(socialAccountId);
+      } catch (e) {
+        analyzeError.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`;
+      } finally {
+        overlay.classList.remove('active');
+        analyzeBtn.disabled = false;
+      }
+    }
+
+    // --- Event listeners ---
+    analyzeBtn.addEventListener('click', runAnalysis);
+    accountSelect.addEventListener('change', () => {
+      loadHistory(accountSelect.value);
+      resultsCard.style.display = 'none';
+    });
+
+    // --- Init ---
+    loadAccounts();
+  </script>
+</body>
+</html>
