@@ -5,27 +5,7 @@ Tool that analyzes social media posts and suggests optimized content/scheduling 
 
 ---
 
-## 💰 Development Costs
-
-### Option 1: Anthropic API (RECOMMENDED)
-- **Initial cost**: $5 free credits when creating account at https://console.anthropic.com
-- **Model**: Claude 3.5 Sonnet ($3 per million input tokens, $15 per million output)
-- **For your MVP**: $5 is MORE than enough for all development and testing
-  - Typical request uses ~5000 tokens (input + output)
-  - Cost per request: ~$0.01-0.02
-  - With $5 → ~250-500 requests
-  - More than sufficient for development
-
-### Option 2: 100% Free Alternative
-- **Vercel AI SDK** with **Groq** (free with rate limits)
-- Model: Llama 3 or Mixtral
-- Limit: ~30 requests/minute
-
-**IMPORTANT**: Your claude.ai subscription ($20/month) and the API are separate services. You need to create an account at console.anthropic.com to get an API key.
-
----
-
-## 📊 Database Structure
+## Database Structure
 ```sql
 -- User/Social Media Account
 CREATE TABLE social_accounts (
@@ -57,6 +37,7 @@ CREATE TABLE posts (
 CREATE TABLE analyses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   social_account_id UUID REFERENCES social_accounts(id),
+  text VARCHAR,
   insights JSONB, -- analysis findings
   suggestions JSONB, -- recommendations
   created_at TIMESTAMP DEFAULT NOW()
@@ -123,8 +104,8 @@ src/
 **Input**:
 ```typescript
 {
-  social_account_id: string;
-  time_period: "30days" | "60days" | "90days";
+  socialAccountId: string;
+  timePeriod: "30days" | "60days" | "90days";
 }
 ```
 
@@ -200,46 +181,6 @@ src/
 
 ---
 
-## 📅 3-4 Day Work Plan
-
-### Day 1: Setup + DB + Seed
-- [ ] Setup NestJS + TypeORM + PostgreSQL (Docker Compose)
-- [ ] Create entities (SocialAccount, Post, Analysis)
-- [ ] Seed with 50-100 varied test posts (different days, hours, topics)
-- [ ] Basic CRUD endpoints for posts
-
-**Deliverable**: Working API with test data
-
----
-
-### Day 2: Vercel AI SDK Integration
-- [ ] Install and configure Vercel AI SDK + Anthropic
-- [ ] Implement `analyzePostPerformance` tool
-- [ ] Manual testing of tool with seeded data
-
-**Deliverable**: First tool working returning real insights
-
----
-
-### Day 3: Complete Agent
-- [ ] Implement `generateContentSuggestion` and `suggestPostingSchedule` tools
-- [ ] Service that orchestrates the agent with all 3 tools
-- [ ] POST `/api/analyze` endpoint that executes the agent
-
-**Deliverable**: Complete agent that can analyze, suggest content and calendar
-
----
-
-### Day 4: Polish + Testing
-- [ ] Save analyses to DB (analyses table)
-- [ ] GET `/api/analyses/:accountId` endpoint to view history
-- [ ] README with usage examples
-- [ ] (Optional) Minimal frontend with React/Next.js for visual demo
-
-**Deliverable**: Complete MVP ready to show
-
----
-
 ## 🚀 Main Endpoints
 
 ### Create posts (for testing)
@@ -248,16 +189,16 @@ POST /api/posts
 Content-Type: application/json
 
 {
-  "social_account_id": "uuid",
+  "socialAccountId": "uuid",
   "content": "5 tips to improve your productivity",
   "topic": "tips",
-  "published_at": "2024-01-08T14:00:00Z",
-  "scraped_at": "2024-01-10T14:00:00Z",
-  "day_of_week": "monday",
-  "hour_of_day": 14,
-  "likes_count": 1200,
-  "comments_count": 45,
-  "has_image": true
+  "publishedAt": "2024-01-08T14:00:00Z",
+  "scrapedAt": "2024-01-10T14:00:00Z",
+  "dayOfWeek": "monday",
+  "hourOfDay": 14,
+  "likesCount": 1200,
+  "commentsCount": 45,
+  "hasImage": true
 }
 ```
 
@@ -267,8 +208,8 @@ POST /api/analyze
 Content-Type: application/json
 
 {
-  "social_account_id": "uuid",
-  "period": "30days"
+  "socialAccountId": "uuid",
+  "timePeriod": "30days"
 }
 
 Response:
@@ -301,26 +242,6 @@ Response:
   ]
 }
 ```
-
-### (Optional) Generate specific content
-```http
-POST /api/generate-content
-Content-Type: application/json
-
-{
-  "topic": "tips",
-  "target_day": "monday",
-  "target_hour": 14
-}
-
-Response:
-{
-  "suggestedContent": "🎯 3 tips for...",
-  "reasoning": "...",
-  "expectedEngagement": "~1200 likes"
-}
-```
-
 ---
 
 ## 🛠️ Tech Stack
@@ -329,7 +250,7 @@ Response:
 - **Database**: PostgreSQL
 - **ORM**: TypeORM
 - **AI SDK**: Vercel AI SDK
-- **LLM**: Claude 3.5 Sonnet (Anthropic)
+- **LLM**: Claude 4.5 Haiku (Anthropic)
 - **Containerization**: Docker Compose
 - **Frontend (optional)**: Next.js / React
 
@@ -337,8 +258,6 @@ Response:
 
 ## 📦 Docker Compose Setup
 ```yaml
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
@@ -367,7 +286,7 @@ volumes:
 
 ---
 
-## 🎯 Value for the Interview
+## 🎯 Value of the service
 
 ### Demonstrates:
 1. **AI Agents**: Not a simple chatbot, uses tools and orchestration
@@ -375,13 +294,6 @@ volumes:
 3. **Backend skills**: NestJS, PostgreSQL, TypeORM, modular architecture
 4. **Data analysis**: Aggregations, patterns, insights
 5. **Scope management**: Functional MVP in 3-4 days
-
-### Discussion Points:
-- How to scale (workers, caching, queues)
-- How to improve the agent (more tools, memory, context)
-- How to integrate with real social media APIs
-- How to handle multiple client accounts
-- Agent observability and monitoring
 
 ---
 
@@ -413,32 +325,4 @@ const posts = [
   },
   // ... more varied posts
 ];
-```
 
----
-
-## ✅ Final Checklist
-
-### Core functionalities:
-- [ ] DB with seeded historical posts
-- [ ] Tool 1: Performance analysis
-- [ ] Tool 2: Content generation
-- [ ] Tool 3: Calendar suggestion
-- [ ] Analysis endpoint that orchestrates the agent
-- [ ] Analysis persistence in DB
-
-### Nice to have:
-- [ ] Simple frontend for visualization
-- [ ] Engagement charts
-- [ ] Export analysis as PDF/JSON
-- [ ] Basic unit tests
-
----
-
-## 🚀 Next Steps
-
-1. Create account at https://console.anthropic.com
-2. Get API key (you have $5 free)
-3. Setup NestJS project
-4. Follow day-by-day plan
-5. Start coding!
