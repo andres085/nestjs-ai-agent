@@ -1,6 +1,6 @@
 # Social Media Content Analyzer & Scheduler - MVP
 
-## 🎯 Objective
+##  Objective
 Tool that analyzes social media posts and suggests optimized content/scheduling using AI agents.
 
 ---
@@ -59,7 +59,7 @@ Conclusion: Mondays have better performance
 
 ---
 
-## 🏗️ NestJS Architecture
+## NestJS Architecture
 ```
 public/
 └── index.html              (frontend — single-page app)
@@ -99,7 +99,7 @@ src/
 
 ---
 
-## 🤖 AI Agent - Tools
+##  AI Agent - Tools
 
 ### Tool 1: `analyzePostPerformance`
 
@@ -185,7 +185,7 @@ src/
 
 ---
 
-## 🚀 Main Endpoints
+##  Main Endpoints
 
 ### Create posts (for testing)
 ```http
@@ -252,7 +252,7 @@ Response:
 ```
 ---
 
-## 🖥️ Frontend
+## Frontend
 
 A built-in single-page interface served at `http://localhost:3000` (no separate build step required).
 
@@ -268,7 +268,7 @@ The frontend is a single `public/index.html` file with embedded CSS and JavaScri
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend**: NestJS
 - **Database**: PostgreSQL
@@ -280,7 +280,7 @@ The frontend is a single `public/index.html` file with embedded CSS and JavaScri
 
 ---
 
-## 📦 Docker Compose Setup
+## Docker Compose Setup
 ```yaml
 services:
   postgres:
@@ -310,7 +310,7 @@ volumes:
 
 ---
 
-## 🎯 Value of the service
+## Value of the service
 
 ### Demonstrates:
 1. **AI Agents**: Not a simple chatbot, uses tools and orchestration
@@ -321,7 +321,7 @@ volumes:
 
 ---
 
-## 📝 Seed Data Example
+## Seed Data Example
 ```typescript
 // 50-100 varied posts for testing
 const posts = [
