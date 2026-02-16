@@ -38,6 +38,7 @@ CREATE TABLE analyses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   social_account_id UUID REFERENCES social_accounts(id),
   text VARCHAR,
+  time_period INTEGER NOT NULL, -- 7, 14, 30, 60, 90 days
   insights JSONB, -- analysis findings
   suggestions JSONB, -- recommendations
   created_at TIMESTAMP DEFAULT NOW()
@@ -214,6 +215,8 @@ Content-Type: application/json
 
 Response:
 {
+  "id": "uuid",
+  "timePeriod": 30,
   "insights": {
     "bestDays": ["monday", "wednesday"],
     "bestHours": [14, 18],
@@ -222,7 +225,8 @@ Response:
   "suggestions": {
     "nextPost": {...},
     "schedule": [...]
-  }
+  },
+  "created_at": "2024-01-15T10:00:00Z"
 }
 ```
 
@@ -235,6 +239,7 @@ Response:
   "analyses": [
     {
       "id": "uuid",
+      "timePeriod": 30,
       "insights": {...},
       "suggestions": {...},
       "created_at": "2024-01-15T10:00:00Z"

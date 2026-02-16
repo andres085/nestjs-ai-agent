@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body } from '@nestjs/common';
 import { AiAgentService } from './ai-agent.service';
 import { AnalysisRequestDto } from './dto/analysis-request.dto';
 
@@ -9,5 +9,10 @@ export class AiAgentController {
   @Post('analyze')
   async analyze(@Body() analysisRequestDto: AnalysisRequestDto) {
     return await this.aiAgentService.analyze(analysisRequestDto);
+  }
+
+  @Get('analyses/:socialAccountId')
+  async getAnalyses(@Param('socialAccountId') socialAccountId: string) {
+    return this.aiAgentService.findAllByAccount(socialAccountId);
   }
 }
