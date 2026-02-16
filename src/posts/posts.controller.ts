@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { AnalysisRequestDto } from 'src/ai-agent/dto/analysis-request.dto';
 
 @Controller('posts')
 export class PostsController {

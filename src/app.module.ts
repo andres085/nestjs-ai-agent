@@ -6,9 +6,15 @@ import { SocialAccountsModule } from './social-accounts/social-accounts.module';
 import { PostsModule } from './posts/posts.module';
 import { SocialAccount } from './social-accounts/entities/social-account.entity';
 import { Post } from './posts/entities/post.entity';
+import { SeedsModule } from './seeds/seeds.module';
+import { AiAgentModule } from './ai-agent/ai-agent.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -18,10 +24,12 @@ import { Post } from './posts/entities/post.entity';
       database: process.env.DB_NAME || 'social_analyzer',
       entities: [SocialAccount, Post],
       synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.NODE_ENV === 'development',
+      logging: false,
     }),
     SocialAccountsModule,
     PostsModule,
+    SeedsModule,
+    AiAgentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

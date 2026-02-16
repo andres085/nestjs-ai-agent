@@ -95,6 +95,7 @@ src/
 │   │
 │   └── ai-agent/
 │       ├── ai-agent.module.ts
+│       ├── ai-agent.controller.ts 
 │       ├── ai-agent.service.ts  (agent orchestration)
 │       ├── tools/
 │       │   ├── analyze-performance.tool.ts
