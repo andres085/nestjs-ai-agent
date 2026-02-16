@@ -61,6 +61,9 @@ Conclusion: Mondays have better performance
 
 ## 🏗️ NestJS Architecture
 ```
+public/
+└── index.html              (frontend — single-page app)
+
 src/
 ├── modules/
 │   ├── social-accounts/
@@ -77,7 +80,7 @@ src/
 │   │
 │   └── ai-agent/
 │       ├── ai-agent.module.ts
-│       ├── ai-agent.controller.ts 
+│       ├── ai-agent.controller.ts
 │       ├── ai-agent.service.ts  (agent orchestration)
 │       ├── tools/
 │       │   ├── analyze-performance.tool.ts
@@ -249,6 +252,22 @@ Response:
 ```
 ---
 
+## 🖥️ Frontend
+
+A built-in single-page interface served at `http://localhost:3000` (no separate build step required).
+
+### Features
+- **Account selector**: Dropdown populated from the database with all registered social accounts
+- **Time period picker**: Choose analysis window (7, 14, 30, 60, or 90 days)
+- **Run Analysis**: Triggers the AI agent with a loading spinner overlay while processing
+- **Results display**: Shows the analysis summary, insights, and content suggestions once complete
+- **Analysis History**: Lists all previous analyses for the selected account, ordered by date descending, each expandable/collapsible
+
+### How it works
+The frontend is a single `public/index.html` file with embedded CSS and JavaScript, served by `@nestjs/serve-static`. It communicates with the existing API endpoints — no additional backend code is needed.
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Backend**: NestJS
@@ -257,7 +276,7 @@ Response:
 - **AI SDK**: Vercel AI SDK
 - **LLM**: Claude 4.5 Haiku (Anthropic)
 - **Containerization**: Docker Compose
-- **Frontend (optional)**: Next.js / React
+- **Frontend**: Single-page HTML served by `@nestjs/serve-static`
 
 ---
 
